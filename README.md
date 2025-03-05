@@ -3,7 +3,7 @@
 Istallation:
 ```
 cd ~
-git clone https://github.com/bbuubu/udpbd-server.git
+git remote add udpbd-server https://github.com/bbuubu/udpbd-server.git
 cd udpbd-server
 chmod 755 setup.sh
 ./setup.sh
