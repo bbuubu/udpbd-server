@@ -9,29 +9,29 @@
 # It also creates a new Samba configuration which exposes the last attached USB drive @ //SMBSHARE/<PARTITION>
 
 # Update packages
-sudo apt-get update
+opkg update
 
 # Install NTFS Read/Write Support
-sudo apt-get install -y ntfs-3g
+opkg install ntfs-3g
 
 # Install pmount with ExFAT support
-sudo apt-get install -y exfat-fuse exfat-utils autoconf intltool libtool libtool-bin libglib2.0-dev libblkid-dev
+opkg install exfat-fuse exfat-utils autoconf intltool libtool libtool-bin libglib2.0-dev libblkid-dev
 cd ~
 git clone https://github.com/stigi/pmount-exfat.git
 cd pmount-exfat
 ./autogen.sh
 make
-sudo make install prefix=usr
-sudo sed -i 's/not_physically_logged_allow = no/not_physically_logged_allow = yes/' /etc/pmount.conf
+make install prefix=usr
+sed -i 's/not_physically_logged_allow = no/not_physically_logged_allow = yes/' /etc/pmount.conf
 
 # Create udev rule
-sudo cat <<'EOF' | sudo tee /etc/udev/rules.d/usbstick.rules
+cat <<'EOF' | tee /etc/udev/rules.d/usbstick.rules
 ACTION=="add", KERNEL=="sd[a-z][0-9]", TAG+="systemd", ENV{SYSTEMD_WANTS}="usbstick-handler@%k"
 ENV{DEVTYPE}=="usb_device", ACTION=="remove", SUBSYSTEM=="usb", RUN+="/bin/systemctl --no-block restart usbstick-cleanup@%k.service"
 EOF
 
 # Configure systemd
-sudo cat <<'EOF' | sudo tee /lib/systemd/system/usbstick-handler@.service
+cat <<'EOF' | tee /lib/systemd/system/usbstick-handler@.service
 [Unit]
 Description=Mount USB sticks
 BindsTo=dev-%i.device
@@ -44,7 +44,7 @@ ExecStart=/usr/local/bin/automount.sh %I
 ExecStop=/usr/bin/pumount /dev/%I
 EOF
 
-sudo cat <<'EOF' | sudo tee /lib/systemd/system/usbstick-cleanup@.service
+cat <<'EOF' | tee /lib/systemd/system/usbstick-cleanup@.service
 [Unit]
 Description=Cleanup USB sticks
 BindsTo=dev-%i.device
@@ -56,7 +56,7 @@ ExecStart=/usr/local/bin/clear_usb.sh
 EOF
 
 # Configure script to run when an automount event is triggered
-sudo cat <<'EOF' | sudo tee /usr/local/bin/automount.sh
+cat <<'EOF' | tee /usr/local/bin/automount.sh
 #!/bin/bash
 
 PART=$1
@@ -72,7 +72,7 @@ udpbd-server /media/${PART}
 EOF
 
 # Make script executable
-sudo chmod +x /usr/local/bin/automount.sh
+chmod +x /usr/local/bin/automount.sh
 
 # Reload udev rules and triggers
-sudo udevadm control --reload-rules && udevadm trigger
+udevadm control --reload-rules && udevadm trigger
