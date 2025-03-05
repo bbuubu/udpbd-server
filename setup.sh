@@ -22,37 +22,37 @@ if [ $USER = "root" ]; then
 fi
 
 # Update packages
-sudo apt-get -y update
-sudo apt-get -y upgrade
+opkg update
+opkg upgrade
 
 # Ensure basic tools are present
-sudo apt-get -y install screen wget git curl coreutils
+opkg install screen wget git curl coreutils
 
 # Compile script
 make -f /home/${USER}/udpbd-server/Makefile
 chmod +x /home/${USER}/udpbd-server/udpbd-server
-sudo cp /home/${USER}/udpbd-server/udpbd-server /usr/local/bin
+cp /home/${USER}/udpbd-server/udpbd-server /usr/local/bin
 
 # Install and configure server
 chmod 755 /home/${USER}/udpbd-server/clear_usb.sh
-sudo cp /home/${USER}/udpbd-server/clear_usb.sh /usr/local/bin
+cp /home/${USER}/udpbd-server/clear_usb.sh /usr/local/bin
 
 # Install wifi-to-eth route settings
-#sudo apt-get install -y dnsmasq
+#apt-get install -y dnsmasq
 #chmod 755 /home/${USER}/udpbd-server/wifi-to-eth-route.sh
 
 # Install USB automount settings
 chmod 755 /home/${USER}/udpbd-server/automount-usb.sh
-sudo /home/${USER}/udpbd-server/automount-usb.sh
+/home/${USER}/udpbd-server/automount-usb.sh
 
 # Set samba-init + ps3netsrv, wifi-to-eth-route, setup-wifi-access-point, and XLink Kai to run on startup
-# { echo -e "@reboot sudo bash /usr/local/bin/samba-init.sh\n@reboot sudo bash /home/${USER}/wifi-to-eth-route.sh"; } | crontab -u pi -
-{ echo -e "@reboot sudo bash /usr/local/bin/clear_usb.sh"; } | crontab -u pi -
+# { echo -e "@reboot bash /usr/local/bin/samba-init.sh\n@reboot bash /home/${USER}/wifi-to-eth-route.sh"; } | crontab -u pi -
+{ echo -e "@reboot bash /usr/local/bin/clear_usb.sh"; } | crontab -u pi -
 
 # Start services
-sudo /usr/local/bin/clear_usb.sh
-#sudo /home/${USER}/udpbd-server/wifi-to-eth-route.sh
-sudo cat static_ip.txt >> /etc/dhcpcd.conf
+/usr/local/bin/clear_usb.sh
+#/home/${USER}/udpbd-server/wifi-to-eth-route.sh
+cat static_ip.txt >> /etc/dhcpcd.conf
 
 # Not a bad idea to reboot
-sudo reboot
+reboot
